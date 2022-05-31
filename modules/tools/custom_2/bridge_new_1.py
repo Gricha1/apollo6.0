@@ -307,6 +307,7 @@ roi_speed_sended = 0
 
 while True:
     sim.run(0.1)
+    #sim.run(1.4)
     if time.time() - t0 > 100000:
             break
     

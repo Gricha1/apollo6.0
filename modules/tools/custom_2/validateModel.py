@@ -112,7 +112,7 @@ def get_points(d_first_goal, roi_boundaries, vehicle_pos,
     config["model"]["use_lstm"] = train_config['use_lstm']
     config["model"]["lstm_use_prev_action"] = train_config['lstm_use_prev_action']
     config["model"]["free_log_std"] = train_config["free_log_std"]
-
+    #config["explore"] = False
 
     #print("###########till env, trainer")
     val_env = ObsEnvironment(environment_config)

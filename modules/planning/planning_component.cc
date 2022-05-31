@@ -58,6 +58,7 @@ std::vector<std::pair<double, double>> vector_obsts_velocity = {};
 ADCTrajectory* example_of_adc_trajectory;
 //new changes
 int count_of_repeat = 0;
+bool last_traj_gear = true;
 
 /*
 //delete
@@ -438,6 +439,15 @@ bool PlanningComponent::Proc(
       const auto& vehicle_state = injector_->vehicle_state()->vehicle_state();
       double vehicle_x = vehicle_state.x();
       double vehicle_y = vehicle_state.y();
+
+      //DEBUG
+      AWARN << "plan debug head:" << vehicle_state.heading()
+            << std::endl;
+      vehicle_x = vehicle_x - (2.8448 / 2) * cos(vehicle_state.heading());
+      vehicle_y = vehicle_y - (2.8448 / 2) * cos(vehicle_state.heading());
+      
+
+
       roi_point origin_point = roi_boundaries_pb
                             ->point(roi_boundaries_pb
                             ->point_size() - 1);
@@ -520,14 +530,6 @@ bool PlanningComponent::Proc(
               << " " << count_of_repeat << std::endl;
       }
       else {
-        count_of_repeat = 0;
-      }
-      if (count_of_repeat >= 2 
-          && int(polamp_trajectory_info.size()) 
-              != index_nearest_point + 1) {
-        index_nearest_point++;
-        nearest_point_t = ts[index_nearest_point];
-        nearest_point_acc_s = acc_ss[index_nearest_point];
         count_of_repeat = 0;
       }
 
@@ -653,9 +655,11 @@ bool PlanningComponent::Proc(
       ADCTrajectory& adc_trajectory_pb_polamp = *example_of_adc_trajectory;
       adc_trajectory_pb_polamp.clear_trajectory_point();
       auto gear = canbus::Chassis::GEAR_DRIVE;
+      last_traj_gear = true; //DEBUG
       int kappa_coef = 1;
       if (!current_traj_polamp_gear) {
         gear = canbus::Chassis::GEAR_REVERSE;
+        last_traj_gear = false; //DEBUG
         kappa_coef = -1;
       }
       adc_trajectory_pb_polamp.set_gear(gear);
@@ -675,16 +679,16 @@ bool PlanningComponent::Proc(
 
         //DEBUG
         AWARN << "path point: " << point_count - 1
-        << " x: " << it.x + origin_point.x()
-        << " + " << it.x + origin_point.x() - int(it.x + origin_point.x())
-        << " y: " << it.y + origin_point.y()
-        << " + " << it.y + origin_point.y() - int(it.y + origin_point.y())
-        << " acc_s: " << current_point_acc_s - nearest_point_acc_s + shift_s
-        << " t: " << current_point_t - nearest_point_t + shift_t
-        << " gear: " << gears_of_points[point_count - 1]
-        << std::endl 
-        << " old a: " << it.a << std::endl
-        << " old v: " << it.v << std::endl;
+              << " x: " << it.x + origin_point.x()
+              << " + " << it.x + origin_point.x() - int(it.x + origin_point.x())
+              << " y: " << it.y + origin_point.y()
+              << " + " << it.y + origin_point.y() - int(it.y + origin_point.y())
+              << " acc_s: " << current_point_acc_s - nearest_point_acc_s + shift_s
+              << " t: " << current_point_t - nearest_point_t + shift_t
+              << " gear: " << gears_of_points[point_count - 1]
+              << std::endl 
+              << " old a: " << it.a << std::endl
+              << " old v: " << it.v << std::endl;
 
         //temp_changes: set end(start) traj point vel to zero:
         it.v = v[point_count - 1];
@@ -844,7 +848,24 @@ bool PlanningComponent::Proc(
       AWARN << p.DebugString();
   }
 
-  
+  //DEBUG
+  AWARN << "traj steers:" << std::endl;
+  int point_index = 0;
+  double max_abs_steer = 0;
+  double max_steer = 0;
+  for (const auto& p : adc_trajectory_pb.trajectory_point()) {
+      AWARN << point_index << ": " 
+            << p.steer() << std::endl;
+      if (max_abs_steer <= abs(p.steer())) {
+        max_abs_steer = abs(p.steer());
+        max_steer = p.steer();
+      }
+      point_index++;
+  }
+  AWARN << "max abs steer:" << max_abs_steer
+        << "with sign" << max_steer << std::endl;
+
+
   int debug_point_num = 0;
 
   //DEBUG

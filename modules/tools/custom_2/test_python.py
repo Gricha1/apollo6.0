@@ -19,6 +19,7 @@ parser.add_argument('-s', '--max_steps', type=int,
                     help='max_steps = steps in env')
 parser.add_argument('-map', '--map')
 parser.add_argument('-n_p', '--number_of_place', type=int)
+parser.add_argument('-apollo', '--apollo', default='0')
 args = parser.parse_args()
 
 
@@ -220,6 +221,7 @@ class RoiReader:
 				print("#---------------------------")
 
 			isDone = False
+			'''
 			d_first_goals = [
 							[1.4, -1],
 							[1.4, -1.5],
@@ -234,10 +236,12 @@ class RoiReader:
 							[2.3, -2],
 							[2.3, -2.3]
 							]
+			'''
 			ind = -1
-			#d_first_goal_x = 1.4
-			#d_first_goal_y = -1.5
-			#d_first_goal = [d_first_goal_x, d_first_goal_y]
+			d_first_goal_x = 1.4
+			d_first_goal_y = -1.5
+			d_first_goal = [d_first_goal_x, d_first_goal_y]
+			d_first_goals = [d_first_goal]
 			while not isDone:
 				print("goal shift index: ", ind)
 				d_first_goal = d_first_goals[ind]
@@ -246,10 +250,12 @@ class RoiReader:
 							vehicle_pos, parking_pos, max_steps=max_steps, 
 							dyn_obsts=dyn_obsts)
 				#ind -= 1
-				if ind == -1:
-					ind = -2
-				else:
-					ind = -1
+				#if ind == -1:
+				#	ind = -2
+				#else:
+				#	ind = -1
+				#ind = np.random.choice(list(range(len(d_first_goals))))
+				
 				#d_first_goal_x = d_first_goal_x
 				#d_first_goal_y -= 0.5
 				#d_first_goal = [d_first_goal_x, d_first_goal_y]
@@ -447,6 +453,9 @@ if __name__ == "__main__":
 				#y_start = 221155
 				x_start = 389049.52
 				y_start = 221176.54
+				if args.apollo == '1':
+					x_start = 388973.36
+					y_start = 221155.02
 				number_of_place = args.number_of_place
 				#number_of_place = 82
 				if number_of_place == 82:	

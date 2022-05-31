@@ -34,7 +34,7 @@ def update_our_env_config():
         "min_obs_v": 0,
         "max_obs_v": 0,
         "UPDATE_SPARSE": 8,
-        "HARD_EPS": 0.5,
+        "HARD_EPS": 0.7,
         "MEDIUM_EPS": 0.5,
         "SOFT_EPS": 1.5,
         "ANGLE_EPS": 15,
